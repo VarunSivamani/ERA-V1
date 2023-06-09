@@ -93,20 +93,23 @@ Below are the defined major steps in this exercise :
 
 # Error graphs
 
-<div style="margin-bottom: 15px;">
-    <img src="../../Results/Session%206/lr0.1.png" alt="LR 0.1" width="350" style="margin-right: 15px;"/>
-    <img src="../../Results/Session%206/lr0.2.png" alt="LR 0.2" width="350"/>
-</div>
+## LR = 0.1
+![LR 0.1](../../Results/Session%206/LR-0.1.png)
 
-<div style="margin-bottom: 15px;">
-    <img src="../../Results/Session%206/lr0.5.png" alt="LR 0.5" width="350"style="margin-right: 15px;"/>
-    <img src="../../Results/Session%206/lr0.8.png" alt="LR 0.8" width="350"/>
-</div>
+## LR = 0.2
+![LR 0.2](../../Results/Session%206/LR-0.2.png)
 
-<div style="margin-bottom: 15px;">
-    <img src="../../Results/Session%206/lr1.0.png" alt="LR 1.0" width="350" style="margin-right: 15px;"/>
-    <img src="../../Results/Session%206/lr2.0.png" alt="LR 2.0" width="350"/>
-</div>
+## LR = 0.5
+![LR 0.5](../../Results/Session%206/LR-0.5.png)
+
+## LR = 0.8
+![LR 0.8](../../Results/Session%206/LR-0.8.png)
+
+## LR = 1.0
+![LR 1.0](../../Results/Session%206/LR-1.0.png)
+
+## LR = 2.0
+![LR 2.0](../../Results/Session%206/LR-2.0.png)
 
 <br>
 
