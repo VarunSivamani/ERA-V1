@@ -117,3 +117,169 @@ Below are the defined major steps in this exercise :
 - With higher learning rate, we are reaching global minima for the weights faster. 
 
 <br>
+
+# Part - 2
+
+# Convolutional Neural Network for MNIST
+
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
+[![PyTorch 2.0](https://img.shields.io/badge/torch-v2.0-brightgreen)](https://pytorch.org/docs/stable/index.html)
+[![Torchvision 0.15](https://img.shields.io/badge/torchvision-v0.15-green)](https://pytorch.org/vision/stable/index.html)
+[![TQDM](https://img.shields.io/badge/tqdm-v4.65.0-yellowgreen)](https://tqdm.github.io/)
+
+
+## Description :
+
+The architecture is a deep convolutional neural network (CNN) which achieved outstanding performance on MNIST image classification. The key characteristic is its simplicity and uniformity in design, making it easy to understand and replicate.
+
+The architecture consists of several Convolutional layers with Batch Normalisation, MaxPooling and Dropout Operations followed by a GAP Layer.
+
+The core building block is the repeated use of 3x3 convolutional layers (kernels) stacked on top of each other.
+
+<br>
+
+# Model Architecture
+
+The architecture of the `Net` neural network can be described as follows:
+
+## 1. Convolutional Layers
+
+`self.conv1`:
+
+- Type: 2D Convolutional layer
+    - Input channels: 1 (grayscale image)
+    - Output channels: 16
+    - Kernel size: 3x3
+    - Padding: 1 (preserves input spatial dimensions)
+- Activation: ReLU (Rectified Linear Unit)
+- Normalization: Batch Normalization
+
+`self.conv2`:
+
+- Type: 2D Convolutional layer
+    - Input channels: 16
+    - Output channels: 16
+    - Kernel size: 3x3
+    - Padding: 1
+- Activation: ReLU
+- Normalization: Batch Normalization
+- Pooling: Max Pooling with kernel size 2x2 and stride 2x2 (halves spatial dimensions)
+- Regularization: Dropout with a rate of 0.25
+
+`self.conv3`:
+
+- Type: 2D Convolutional layer
+    - Input channels: 16
+    - Output channels: 16
+    - Kernel size: 3x3
+    - Padding: 1
+- Activation: ReLU
+- Normalization: Batch Normalization
+
+` self.conv4`:
+
+- Type: 2D Convolutional layer
+    - Input channels: 16
+    - Output channels: 16
+    - Kernel size: 3x3
+    - Padding: 1
+- Activation: ReLU
+- Normalization: Batch Normalization
+
+`self.conv5`:
+
+- Type: 2D Convolutional layer
+    - Input channels: 16
+    - Output channels: 32
+    - Kernel size: 3x3
+    - Padding: 1
+- Activation: ReLU
+- Normalization: Batch Normalization
+- Pooling: Max Pooling with kernel size 2x2 and stride 2x2
+- Regularization: Dropout with a rate of 0.25
+
+<br>
+
+## 2. Global Average Pooling Layer
+
+`self.gap`:
+
+- Type: 2D Convolutional layer
+    - Input channels: 32
+    - Output channels: 10
+    - Kernel size: 1x1 (reduces spatial dimensions from 7x7 to 1x1)
+
+<br>
+
+## 3. Fully Connected Layers
+
+`self.fc`:
+- Type: Fully connected (linear) layer
+    - Input size: 90 (flattened output from the previous layer)
+    - Output size: 10 (corresponding to the number of classes)
+
+<br>
+
+## 4. Forward Function
+The forward method defines the forward pass of the network:
+- Input x is passed through the convolutional layers (conv1 to conv5) with ReLU activations and batch normalization.
+- The output from conv5 is passed through the global average pooling (gap) layer to reduce spatial dimensions to 1x1.
+- The output is then reshaped (view) to have dimensions `(batch_size, -1)`.
+- The reshaped output is passed through the fully connected layer (fc) to obtain the final output logits.
+- The logits are transformed using a logarithmic softmax function along dimension 1 (which represents the classes) and returned as the final output.
+
+<br>
+
+# Model Summary
+
+```python
+================================================================
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv2d-1           [-1, 16, 28, 28]             160
+              ReLU-2           [-1, 16, 28, 28]               0
+       BatchNorm2d-3           [-1, 16, 28, 28]              32
+            Conv2d-4           [-1, 16, 28, 28]           2,320
+              ReLU-5           [-1, 16, 28, 28]               0
+       BatchNorm2d-6           [-1, 16, 28, 28]              32
+         MaxPool2d-7           [-1, 16, 14, 14]               0
+           Dropout-8           [-1, 16, 14, 14]               0
+            Conv2d-9           [-1, 16, 14, 14]           2,320
+             ReLU-10           [-1, 16, 14, 14]               0
+      BatchNorm2d-11           [-1, 16, 14, 14]              32
+        MaxPool2d-12             [-1, 16, 7, 7]               0
+          Dropout-13             [-1, 16, 7, 7]               0
+           Conv2d-14             [-1, 16, 7, 7]           2,320
+             ReLU-15             [-1, 16, 7, 7]               0
+      BatchNorm2d-16             [-1, 16, 7, 7]              32
+           Conv2d-17             [-1, 32, 7, 7]           4,640
+             ReLU-18             [-1, 32, 7, 7]               0
+      BatchNorm2d-19             [-1, 32, 7, 7]              64
+        MaxPool2d-20             [-1, 32, 3, 3]               0
+          Dropout-21             [-1, 32, 3, 3]               0
+           Conv2d-22             [-1, 10, 3, 3]             330
+           Linear-23                   [-1, 10]             910
+================================================================
+Total params: 13,192
+Trainable params: 13,192
+Non-trainable params: 0
+================================================================
+Input size (MB): 0.00
+Forward/backward pass size (MB): 0.76
+Params size (MB): 0.05
+Estimated Total Size (MB): 0.82
+================================================================
+```
+<br>
+
+# Results
+
+![Validation Accuracy](../../Results/Session%206/Validation_Accuracy.png)
+
+<br>
+
+# Key Achievements
+
+- 99.4% Validation Accuracy
+- Less than 20k Parameters
+- Less than 20 Epochs
