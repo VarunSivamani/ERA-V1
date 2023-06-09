@@ -37,7 +37,7 @@ The process of forward propagation followed by backward propagation is iterative
 
 <br>
 
-# Calculating gradients intermediate step for layer 1
+# Calculating Gradients intermediate step for layer 1
 
 ![gl1.png](../../Results/Session%206/gl1.png)
 
@@ -55,7 +55,7 @@ The process of forward propagation followed by backward propagation is iterative
 
 <br>
 
-# Neural Network Architecture
+# Weight Initialisation
 
 ![BackPropagation.png](../../Results/Session%206/Backpropagation.png)
 
@@ -85,7 +85,9 @@ Below are the defined major steps in this exercise :
 7. All the above steps are run for different learning rates in a for loop.   
 <br>
 
-# Variation of Losses w.r.t Learning Rates
+# Variation of Losses w.r.t Learning Rates (Refer Excel Sheet - 2)
+
+The screenshot shows the different error graphs for learning rates ranging from 0.1-2.0
 
 ![Losses.png](../../Results/Session%206/Losses.png)
 
