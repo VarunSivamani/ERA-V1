@@ -26,7 +26,8 @@ This repository contains 6 `.ipynb` notebooks which has 6 different models train
 
 <br>
 
-# Model 1:
+# Model 1 - [Notebook](https://github.com/VarunSivamani/ERA-V1/blob/main/Session%207/S7_Model1.ipynb)
+
 
 ### Target:
 
@@ -49,7 +50,8 @@ This repository contains 6 `.ipynb` notebooks which has 6 different models train
 
 <br>
 
-# Model 2:
+# Model 2 - [Notebook](https://github.com/VarunSivamani/ERA-V1/blob/main/Session%207/S7_Model2.ipynb)
+
 
 ### Target:
 
@@ -70,7 +72,8 @@ This repository contains 6 `.ipynb` notebooks which has 6 different models train
 
 <br>
 
-# Model 3:
+# Model 3 - [Notebook](https://github.com/VarunSivamani/ERA-V1/blob/main/Session%207/S7_Model3.ipynb)
+
 
 ### Target:
 
@@ -90,7 +93,8 @@ This repository contains 6 `.ipynb` notebooks which has 6 different models train
 
 <br>
 
-# Model 4:
+# Model 4 - [Notebook](https://github.com/VarunSivamani/ERA-V1/blob/main/Session%207/S7_Model4.ipynb)
+
 
 ### Target:
 
@@ -109,7 +113,8 @@ This repository contains 6 `.ipynb` notebooks which has 6 different models train
 
 <br>
 
-# Model 5:
+# Model 5 - [Notebook](https://github.com/VarunSivamani/ERA-V1/blob/main/Session%207/S7_Model5.ipynb)
+
 
 ### Target: 
 
@@ -128,7 +133,8 @@ This repository contains 6 `.ipynb` notebooks which has 6 different models train
 
 <br>
 
-# Model 6:
+# Model 6 - [Notebook](https://github.com/VarunSivamani/ERA-V1/blob/main/Session%207/S7_Model6.ipynb)
+
 
 ### Target:
 
@@ -151,7 +157,7 @@ This repository contains 6 `.ipynb` notebooks which has 6 different models train
 
 <br>
 
-# Receptive Field Calculations:
+# Receptive Field Calculations
 
 | Layers   | Kernel | R_in | N_in | J_in | Stride | Padding | R_out | N_out | J_out |
 |----------|--------|------|------|------|--------|---------|-------|-------|-------|
