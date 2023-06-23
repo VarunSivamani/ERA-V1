@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-############################### SESSION - 8 ###############################
+############################### ASSIGNMENT - 8 ###############################
 
 
 class Model(nn.Module):
@@ -103,7 +103,7 @@ class ConvLayer(nn.Module):
         return x
 
 
-############################### SESSION - 7 ###############################
+############################### ASSIGNMENT - 7 ###############################
 
 
 class Model1(nn.Module):
@@ -517,7 +517,7 @@ class Model6(nn.Module):
         return F.log_softmax(x, dim=-1)
     
 
-############################### SESSION - 6 ###############################
+############################### ASSIGNMENT - 6 ###############################
 
 class Net(nn.Module):
     def __init__(self):
