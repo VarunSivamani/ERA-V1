@@ -561,4 +561,7 @@ No obj accuracy : 97.920502%
 Obj accuracy    : 77.769478%
 Total loss: 6.141538
 Saving and Creating checkpoint...
+
+100%|██████████| 310/310 [12:52<00:00,  2.49s/it]
+MAP: 0.46935781836509705
 ```
