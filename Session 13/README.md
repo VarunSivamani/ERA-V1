@@ -1,0 +1,449 @@
+# Session 13
+
+# YOLO V2 & V3 and Object Detection Techniques - Part 1 & 2
+
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
+[![PyTorch-Lightning](https://img.shields.io/badge/pytorch_lightning-v2.0.6-red)](https://lightning.ai/docs/pytorch/latest/)
+[![PyTorch 2.0](https://img.shields.io/badge/torch-v2.0-brightgreen)](https://pytorch.org/docs/stable/index.html)
+[![Torchvision 0.15](https://img.shields.io/badge/torchvision-v0.15-green)](https://pytorch.org/vision/stable/index.html)
+[![TQDM](https://img.shields.io/badge/tqdm-v4.65.0-yellowgreen)](https://tqdm.github.io/)
+[![Albumentations](https://img.shields.io/badge/Albumentations-v1.3.1-yellow)](https://albumentations.ai/docs/)
+[![Torch-LR-Finder](https://img.shields.io/badge/TorchLRFinder-v0.2.1-red)](https://pypi.org/project/torch-lr-finder/)
+
+<br>
+
+# Task
+
+1. Move the code to PytorchLightning
+2. Train the model to reach such that all of these are true:
+- Class accuracy is more than 75%
+- No Obj accuracy of more than 95%
+- Object Accuracy of more than 70% (assuming you had to reduce the kernel numbers, else 80/98/78)
+- Ideally trailed till 40 epochs
+3. Add these training features:
+- Add multi-resolution training - the code shared trains only on one resolution 416
+- Add Implement Mosaic Augmentation only 75% of the times
+- Train on float16
+- GradCam must be implemented.
+4. Things that are allowed due to HW constraints:
+- Change of batch size
+- Change of resolution
+- Change of OCP parameters
+
+<br>
+
+# Solution
+
+This repository contains a `Pytorch-Lightning YoloV3` model trained and validated on `PASCAL VOC dataset`. The scheduler used here is `OneCycleLR`.
+
+<br>
+
+# Applying Albumentations library
+
+```python
+train_transforms = A.Compose(
+    [
+        A.LongestMaxSize(max_size=int(IMAGE_SIZE * scale)),
+        A.PadIfNeeded(
+            min_height=int(IMAGE_SIZE * scale),
+            min_width=int(IMAGE_SIZE * scale),
+            border_mode=cv2.BORDER_CONSTANT,
+        ),
+        A.Rotate(limit = 10, interpolation=1, border_mode=4),
+        A.RandomCrop(width=IMAGE_SIZE, height=IMAGE_SIZE),
+        A.ColorJitter(brightness=0.6, contrast=0.6, saturation=0.6, hue=0.6, p=0.4),
+        A.OneOf(
+            [
+                A.ShiftScaleRotate(
+                    rotate_limit=20, p=0.5, border_mode=cv2.BORDER_CONSTANT
+                ),
+                # A.Affine(shear=15, p=0.5, mode="constant"),
+            ],
+            p=1.0,
+        ),
+        A.HorizontalFlip(p=0.5),
+        A.Blur(p=0.1),
+        A.CLAHE(p=0.1),
+        A.Posterize(p=0.1),
+        A.ToGray(p=0.1),
+        A.ChannelShuffle(p=0.05),
+        A.Normalize(mean=[0, 0, 0], std=[1, 1, 1], max_pixel_value=255,),
+        ToTensorV2(),
+    ],
+    bbox_params=A.BboxParams(format="yolo", min_visibility=0.4, label_fields=[],),
+)
+```
+
+<br>
+
+# Mosaic Augmentation
+
+<div style="display: flex; flex-wrap: wrap;">
+    <img src="../Results/Session 13/augmented_1.png" alt="augmented_1" style="width: 48%; margin: 1%; box-sizing: border-box;">
+    <img src="../Results/Session 13/augmented_2.png" alt="augmented_2" style="width: 48%; margin: 1%; box-sizing: border-box;">
+    <img src="../Results/Session 13/augmented_3.png" alt="augmented_3" style="width: 48%; margin: 1%; box-sizing: border-box;">
+    <img src="../Results/Session 13/augmented_4.png" alt="augmented_4" style="width: 48%; margin: 1%; box-sizing: border-box;">
+</div>
+
+
+<br>
+
+# Model Summary
+
+```python
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv2d-1         [-1, 32, 416, 416]             864
+       BatchNorm2d-2         [-1, 32, 416, 416]              64
+         LeakyReLU-3         [-1, 32, 416, 416]               0
+          CNNBlock-4         [-1, 32, 416, 416]               0
+            Conv2d-5         [-1, 64, 208, 208]          18,432
+       BatchNorm2d-6         [-1, 64, 208, 208]             128
+         LeakyReLU-7         [-1, 64, 208, 208]               0
+          CNNBlock-8         [-1, 64, 208, 208]               0
+            Conv2d-9         [-1, 32, 208, 208]           2,048
+      BatchNorm2d-10         [-1, 32, 208, 208]              64
+        LeakyReLU-11         [-1, 32, 208, 208]               0
+         CNNBlock-12         [-1, 32, 208, 208]               0
+           Conv2d-13         [-1, 64, 208, 208]          18,432
+      BatchNorm2d-14         [-1, 64, 208, 208]             128
+        LeakyReLU-15         [-1, 64, 208, 208]               0
+         CNNBlock-16         [-1, 64, 208, 208]               0
+    ResidualBlock-17         [-1, 64, 208, 208]               0
+           Conv2d-18        [-1, 128, 104, 104]          73,728
+      BatchNorm2d-19        [-1, 128, 104, 104]             256
+        LeakyReLU-20        [-1, 128, 104, 104]               0
+         CNNBlock-21        [-1, 128, 104, 104]               0
+           Conv2d-22         [-1, 64, 104, 104]           8,192
+      BatchNorm2d-23         [-1, 64, 104, 104]             128
+        LeakyReLU-24         [-1, 64, 104, 104]               0
+         CNNBlock-25         [-1, 64, 104, 104]               0
+           Conv2d-26        [-1, 128, 104, 104]          73,728
+      BatchNorm2d-27        [-1, 128, 104, 104]             256
+        LeakyReLU-28        [-1, 128, 104, 104]               0
+         CNNBlock-29        [-1, 128, 104, 104]               0
+           Conv2d-30         [-1, 64, 104, 104]           8,192
+      BatchNorm2d-31         [-1, 64, 104, 104]             128
+        LeakyReLU-32         [-1, 64, 104, 104]               0
+         CNNBlock-33         [-1, 64, 104, 104]               0
+           Conv2d-34        [-1, 128, 104, 104]          73,728
+      BatchNorm2d-35        [-1, 128, 104, 104]             256
+        LeakyReLU-36        [-1, 128, 104, 104]               0
+         CNNBlock-37        [-1, 128, 104, 104]               0
+    ResidualBlock-38        [-1, 128, 104, 104]               0
+           Conv2d-39          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-40          [-1, 256, 52, 52]             512
+        LeakyReLU-41          [-1, 256, 52, 52]               0
+         CNNBlock-42          [-1, 256, 52, 52]               0
+           Conv2d-43          [-1, 128, 52, 52]          32,768
+      BatchNorm2d-44          [-1, 128, 52, 52]             256
+        LeakyReLU-45          [-1, 128, 52, 52]               0
+         CNNBlock-46          [-1, 128, 52, 52]               0
+           Conv2d-47          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-48          [-1, 256, 52, 52]             512
+        LeakyReLU-49          [-1, 256, 52, 52]               0
+         CNNBlock-50          [-1, 256, 52, 52]               0
+           Conv2d-51          [-1, 128, 52, 52]          32,768
+      BatchNorm2d-52          [-1, 128, 52, 52]             256
+        LeakyReLU-53          [-1, 128, 52, 52]               0
+         CNNBlock-54          [-1, 128, 52, 52]               0
+           Conv2d-55          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-56          [-1, 256, 52, 52]             512
+        LeakyReLU-57          [-1, 256, 52, 52]               0
+         CNNBlock-58          [-1, 256, 52, 52]               0
+           Conv2d-59          [-1, 128, 52, 52]          32,768
+      BatchNorm2d-60          [-1, 128, 52, 52]             256
+        LeakyReLU-61          [-1, 128, 52, 52]               0
+         CNNBlock-62          [-1, 128, 52, 52]               0
+           Conv2d-63          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-64          [-1, 256, 52, 52]             512
+        LeakyReLU-65          [-1, 256, 52, 52]               0
+         CNNBlock-66          [-1, 256, 52, 52]               0
+           Conv2d-67          [-1, 128, 52, 52]          32,768
+      BatchNorm2d-68          [-1, 128, 52, 52]             256
+        LeakyReLU-69          [-1, 128, 52, 52]               0
+         CNNBlock-70          [-1, 128, 52, 52]               0
+           Conv2d-71          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-72          [-1, 256, 52, 52]             512
+        LeakyReLU-73          [-1, 256, 52, 52]               0
+         CNNBlock-74          [-1, 256, 52, 52]               0
+           Conv2d-75          [-1, 128, 52, 52]          32,768
+      BatchNorm2d-76          [-1, 128, 52, 52]             256
+        LeakyReLU-77          [-1, 128, 52, 52]               0
+         CNNBlock-78          [-1, 128, 52, 52]               0
+           Conv2d-79          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-80          [-1, 256, 52, 52]             512
+        LeakyReLU-81          [-1, 256, 52, 52]               0
+         CNNBlock-82          [-1, 256, 52, 52]               0
+           Conv2d-83          [-1, 128, 52, 52]          32,768
+      BatchNorm2d-84          [-1, 128, 52, 52]             256
+        LeakyReLU-85          [-1, 128, 52, 52]               0
+         CNNBlock-86          [-1, 128, 52, 52]               0
+           Conv2d-87          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-88          [-1, 256, 52, 52]             512
+        LeakyReLU-89          [-1, 256, 52, 52]               0
+         CNNBlock-90          [-1, 256, 52, 52]               0
+           Conv2d-91          [-1, 128, 52, 52]          32,768
+      BatchNorm2d-92          [-1, 128, 52, 52]             256
+        LeakyReLU-93          [-1, 128, 52, 52]               0
+         CNNBlock-94          [-1, 128, 52, 52]               0
+           Conv2d-95          [-1, 256, 52, 52]         294,912
+      BatchNorm2d-96          [-1, 256, 52, 52]             512
+        LeakyReLU-97          [-1, 256, 52, 52]               0
+         CNNBlock-98          [-1, 256, 52, 52]               0
+           Conv2d-99          [-1, 128, 52, 52]          32,768
+     BatchNorm2d-100          [-1, 128, 52, 52]             256
+       LeakyReLU-101          [-1, 128, 52, 52]               0
+        CNNBlock-102          [-1, 128, 52, 52]               0
+          Conv2d-103          [-1, 256, 52, 52]         294,912
+     BatchNorm2d-104          [-1, 256, 52, 52]             512
+       LeakyReLU-105          [-1, 256, 52, 52]               0
+        CNNBlock-106          [-1, 256, 52, 52]               0
+   ResidualBlock-107          [-1, 256, 52, 52]               0
+          Conv2d-108          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-109          [-1, 512, 26, 26]           1,024
+       LeakyReLU-110          [-1, 512, 26, 26]               0
+        CNNBlock-111          [-1, 512, 26, 26]               0
+          Conv2d-112          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-113          [-1, 256, 26, 26]             512
+       LeakyReLU-114          [-1, 256, 26, 26]               0
+        CNNBlock-115          [-1, 256, 26, 26]               0
+          Conv2d-116          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-117          [-1, 512, 26, 26]           1,024
+       LeakyReLU-118          [-1, 512, 26, 26]               0
+        CNNBlock-119          [-1, 512, 26, 26]               0
+          Conv2d-120          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-121          [-1, 256, 26, 26]             512
+       LeakyReLU-122          [-1, 256, 26, 26]               0
+        CNNBlock-123          [-1, 256, 26, 26]               0
+          Conv2d-124          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-125          [-1, 512, 26, 26]           1,024
+       LeakyReLU-126          [-1, 512, 26, 26]               0
+        CNNBlock-127          [-1, 512, 26, 26]               0
+          Conv2d-128          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-129          [-1, 256, 26, 26]             512
+       LeakyReLU-130          [-1, 256, 26, 26]               0
+        CNNBlock-131          [-1, 256, 26, 26]               0
+          Conv2d-132          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-133          [-1, 512, 26, 26]           1,024
+       LeakyReLU-134          [-1, 512, 26, 26]               0
+        CNNBlock-135          [-1, 512, 26, 26]               0
+          Conv2d-136          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-137          [-1, 256, 26, 26]             512
+       LeakyReLU-138          [-1, 256, 26, 26]               0
+        CNNBlock-139          [-1, 256, 26, 26]               0
+          Conv2d-140          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-141          [-1, 512, 26, 26]           1,024
+       LeakyReLU-142          [-1, 512, 26, 26]               0
+        CNNBlock-143          [-1, 512, 26, 26]               0
+          Conv2d-144          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-145          [-1, 256, 26, 26]             512
+       LeakyReLU-146          [-1, 256, 26, 26]               0
+        CNNBlock-147          [-1, 256, 26, 26]               0
+          Conv2d-148          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-149          [-1, 512, 26, 26]           1,024
+       LeakyReLU-150          [-1, 512, 26, 26]               0
+        CNNBlock-151          [-1, 512, 26, 26]               0
+          Conv2d-152          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-153          [-1, 256, 26, 26]             512
+       LeakyReLU-154          [-1, 256, 26, 26]               0
+        CNNBlock-155          [-1, 256, 26, 26]               0
+          Conv2d-156          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-157          [-1, 512, 26, 26]           1,024
+       LeakyReLU-158          [-1, 512, 26, 26]               0
+        CNNBlock-159          [-1, 512, 26, 26]               0
+          Conv2d-160          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-161          [-1, 256, 26, 26]             512
+       LeakyReLU-162          [-1, 256, 26, 26]               0
+        CNNBlock-163          [-1, 256, 26, 26]               0
+          Conv2d-164          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-165          [-1, 512, 26, 26]           1,024
+       LeakyReLU-166          [-1, 512, 26, 26]               0
+        CNNBlock-167          [-1, 512, 26, 26]               0
+          Conv2d-168          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-169          [-1, 256, 26, 26]             512
+       LeakyReLU-170          [-1, 256, 26, 26]               0
+        CNNBlock-171          [-1, 256, 26, 26]               0
+          Conv2d-172          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-173          [-1, 512, 26, 26]           1,024
+       LeakyReLU-174          [-1, 512, 26, 26]               0
+        CNNBlock-175          [-1, 512, 26, 26]               0
+   ResidualBlock-176          [-1, 512, 26, 26]               0
+          Conv2d-177         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-178         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-179         [-1, 1024, 13, 13]               0
+        CNNBlock-180         [-1, 1024, 13, 13]               0
+          Conv2d-181          [-1, 512, 13, 13]         524,288
+     BatchNorm2d-182          [-1, 512, 13, 13]           1,024
+       LeakyReLU-183          [-1, 512, 13, 13]               0
+        CNNBlock-184          [-1, 512, 13, 13]               0
+          Conv2d-185         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-186         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-187         [-1, 1024, 13, 13]               0
+        CNNBlock-188         [-1, 1024, 13, 13]               0
+          Conv2d-189          [-1, 512, 13, 13]         524,288
+     BatchNorm2d-190          [-1, 512, 13, 13]           1,024
+       LeakyReLU-191          [-1, 512, 13, 13]               0
+        CNNBlock-192          [-1, 512, 13, 13]               0
+          Conv2d-193         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-194         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-195         [-1, 1024, 13, 13]               0
+        CNNBlock-196         [-1, 1024, 13, 13]               0
+          Conv2d-197          [-1, 512, 13, 13]         524,288
+     BatchNorm2d-198          [-1, 512, 13, 13]           1,024
+       LeakyReLU-199          [-1, 512, 13, 13]               0
+        CNNBlock-200          [-1, 512, 13, 13]               0
+          Conv2d-201         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-202         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-203         [-1, 1024, 13, 13]               0
+        CNNBlock-204         [-1, 1024, 13, 13]               0
+          Conv2d-205          [-1, 512, 13, 13]         524,288
+     BatchNorm2d-206          [-1, 512, 13, 13]           1,024
+       LeakyReLU-207          [-1, 512, 13, 13]               0
+        CNNBlock-208          [-1, 512, 13, 13]               0
+          Conv2d-209         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-210         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-211         [-1, 1024, 13, 13]               0
+        CNNBlock-212         [-1, 1024, 13, 13]               0
+   ResidualBlock-213         [-1, 1024, 13, 13]               0
+          Conv2d-214          [-1, 512, 13, 13]         524,288
+     BatchNorm2d-215          [-1, 512, 13, 13]           1,024
+       LeakyReLU-216          [-1, 512, 13, 13]               0
+        CNNBlock-217          [-1, 512, 13, 13]               0
+          Conv2d-218         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-219         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-220         [-1, 1024, 13, 13]               0
+        CNNBlock-221         [-1, 1024, 13, 13]               0
+          Conv2d-222          [-1, 512, 13, 13]         524,288
+     BatchNorm2d-223          [-1, 512, 13, 13]           1,024
+       LeakyReLU-224          [-1, 512, 13, 13]               0
+        CNNBlock-225          [-1, 512, 13, 13]               0
+          Conv2d-226         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-227         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-228         [-1, 1024, 13, 13]               0
+        CNNBlock-229         [-1, 1024, 13, 13]               0
+   ResidualBlock-230         [-1, 1024, 13, 13]               0
+          Conv2d-231          [-1, 512, 13, 13]         524,288
+     BatchNorm2d-232          [-1, 512, 13, 13]           1,024
+       LeakyReLU-233          [-1, 512, 13, 13]               0
+        CNNBlock-234          [-1, 512, 13, 13]               0
+          Conv2d-235         [-1, 1024, 13, 13]       4,718,592
+     BatchNorm2d-236         [-1, 1024, 13, 13]           2,048
+       LeakyReLU-237         [-1, 1024, 13, 13]               0
+        CNNBlock-238         [-1, 1024, 13, 13]               0
+          Conv2d-239           [-1, 75, 13, 13]          76,875
+        CNNBlock-240           [-1, 75, 13, 13]               0
+ ScalePrediction-241        [-1, 3, 13, 13, 25]               0
+          Conv2d-242          [-1, 256, 13, 13]         131,072
+     BatchNorm2d-243          [-1, 256, 13, 13]             512
+       LeakyReLU-244          [-1, 256, 13, 13]               0
+        CNNBlock-245          [-1, 256, 13, 13]               0
+        Upsample-246          [-1, 256, 26, 26]               0
+          Conv2d-247          [-1, 256, 26, 26]         196,608
+     BatchNorm2d-248          [-1, 256, 26, 26]             512
+       LeakyReLU-249          [-1, 256, 26, 26]               0
+        CNNBlock-250          [-1, 256, 26, 26]               0
+          Conv2d-251          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-252          [-1, 512, 26, 26]           1,024
+       LeakyReLU-253          [-1, 512, 26, 26]               0
+        CNNBlock-254          [-1, 512, 26, 26]               0
+          Conv2d-255          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-256          [-1, 256, 26, 26]             512
+       LeakyReLU-257          [-1, 256, 26, 26]               0
+        CNNBlock-258          [-1, 256, 26, 26]               0
+          Conv2d-259          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-260          [-1, 512, 26, 26]           1,024
+       LeakyReLU-261          [-1, 512, 26, 26]               0
+        CNNBlock-262          [-1, 512, 26, 26]               0
+   ResidualBlock-263          [-1, 512, 26, 26]               0
+          Conv2d-264          [-1, 256, 26, 26]         131,072
+     BatchNorm2d-265          [-1, 256, 26, 26]             512
+       LeakyReLU-266          [-1, 256, 26, 26]               0
+        CNNBlock-267          [-1, 256, 26, 26]               0
+          Conv2d-268          [-1, 512, 26, 26]       1,179,648
+     BatchNorm2d-269          [-1, 512, 26, 26]           1,024
+       LeakyReLU-270          [-1, 512, 26, 26]               0
+        CNNBlock-271          [-1, 512, 26, 26]               0
+          Conv2d-272           [-1, 75, 26, 26]          38,475
+        CNNBlock-273           [-1, 75, 26, 26]               0
+ ScalePrediction-274        [-1, 3, 26, 26, 25]               0
+          Conv2d-275          [-1, 128, 26, 26]          32,768
+     BatchNorm2d-276          [-1, 128, 26, 26]             256
+       LeakyReLU-277          [-1, 128, 26, 26]               0
+        CNNBlock-278          [-1, 128, 26, 26]               0
+        Upsample-279          [-1, 128, 52, 52]               0
+          Conv2d-280          [-1, 128, 52, 52]          49,152
+     BatchNorm2d-281          [-1, 128, 52, 52]             256
+       LeakyReLU-282          [-1, 128, 52, 52]               0
+        CNNBlock-283          [-1, 128, 52, 52]               0
+          Conv2d-284          [-1, 256, 52, 52]         294,912
+     BatchNorm2d-285          [-1, 256, 52, 52]             512
+       LeakyReLU-286          [-1, 256, 52, 52]               0
+        CNNBlock-287          [-1, 256, 52, 52]               0
+          Conv2d-288          [-1, 128, 52, 52]          32,768
+     BatchNorm2d-289          [-1, 128, 52, 52]             256
+       LeakyReLU-290          [-1, 128, 52, 52]               0
+        CNNBlock-291          [-1, 128, 52, 52]               0
+          Conv2d-292          [-1, 256, 52, 52]         294,912
+     BatchNorm2d-293          [-1, 256, 52, 52]             512
+       LeakyReLU-294          [-1, 256, 52, 52]               0
+        CNNBlock-295          [-1, 256, 52, 52]               0
+   ResidualBlock-296          [-1, 256, 52, 52]               0
+          Conv2d-297          [-1, 128, 52, 52]          32,768
+     BatchNorm2d-298          [-1, 128, 52, 52]             256
+       LeakyReLU-299          [-1, 128, 52, 52]               0
+        CNNBlock-300          [-1, 128, 52, 52]               0
+          Conv2d-301          [-1, 256, 52, 52]         294,912
+     BatchNorm2d-302          [-1, 256, 52, 52]             512
+       LeakyReLU-303          [-1, 256, 52, 52]               0
+        CNNBlock-304          [-1, 256, 52, 52]               0
+          Conv2d-305           [-1, 75, 52, 52]          19,275
+        CNNBlock-306           [-1, 75, 52, 52]               0
+ ScalePrediction-307        [-1, 3, 52, 52, 25]               0
+================================================================
+Total params: 61,626,049
+Trainable params: 61,626,049
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 1.98
+Forward/backward pass size (MB): 1228.70
+Params size (MB): 235.08
+Estimated Total Size (MB): 1465.77
+----------------------------------------------------------------
+```
+
+<br>
+
+# Results
+
+**Results of Training :**    
+- Class accuracy  : `83.764771%`    
+- No obj accuracy : `98.051712%`    
+- Obj accuracy    : `77.626244%`    
+- Total loss: `3.892580`    
+
+**Results on Validation :**   
+- Class accuracy  : `83.341530%`    
+- No obj accuracy : `97.920502%`    
+- Obj accuracy    : `77.769478%`    
+- Total loss: `6.141538`    
+
+**MAP :** `0.46935781836509705`
+
+<br>
+
+# GradCAM Images
+
+<div style="display: flex; flex-wrap: wrap;">
+    <img src="../Results/Session 13/grad_cam_1.png" alt="grad_cam_ 1" style="width: 48%; margin: 1%; box-sizing: border-box;">
+    <img src="../Results/Session 13/grad_cam_2.png" alt="grad_cam_ 2" style="width: 48%; margin: 1%; box-sizing: border-box;">
+    <img src="../Results/Session 13/grad_cam_3.png" alt="grad_cam_ 3" style="width: 48%; margin: 1%; box-sizing: border-box;">
+    <img src="../Results/Session 13/grad_cam_4.png" alt="grad_cam_ 4" style="width: 48%; margin: 1%; box-sizing: border-box;">
+</div>
+
+<br>
+
+# Training Testing Logs
+
+The training testing logs can be found [here](./Train_Test_logs.md)
