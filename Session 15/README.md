@@ -1,4 +1,4 @@
-# Session%2015
+# Session 15
 
 # Dawn of Transformers - Part II Part A & Part B
 
@@ -115,6 +115,12 @@ The Transformer model runs as follows :
 <br>
 
 # Self Attention
+
+- The `query` is the representation for the word we want to calculate self-attention for.
+- The `key` is a representation of each word in the sequence and is used to match against the query of the word for which we currently want to calculate self-attention.
+- The `value` is the actual representation of each word in a sequence, the representation we really care about. 
+
+<br>
 
 ![self-attention](../Results/Session%2015/Attention.png)
 
