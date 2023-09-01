@@ -1,4 +1,4 @@
-# Session 15
+# Session%2015
 
 # Dawn of Transformers - Part II Part A & Part B
 
@@ -91,7 +91,7 @@ The dataset used for training and validation is [`opus_books`](https://huggingfa
 
 # Architecture
 
-![architecture](../Results/Session 15/Transformer%20Architecture.png)
+![architecture](../Results/Session%2015/Transformer%20Architecture.png)
 
 <br>
 
@@ -110,19 +110,19 @@ The Transformer model runs as follows :
 
 <br>
 
-![architecture-understanding](../Results/Session 15/Architecture.png)
+![architecture-understanding](../Results/Session%2015/Architecture.png)
 
 <br>
 
 # Self Attention
 
-![self-attention](../Results/Session 15/Attention.png)
+![self-attention](../Results/Session%2015/Attention.png)
 
 <br>
 
 # Inference
 
-![inference](../Results/Session 15/Inference.png)
+![inference](../Results/Session%2015/Inference.png)
 
 <br>
 
