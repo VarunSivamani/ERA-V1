@@ -30,7 +30,10 @@ This repository contains a `Pytorch-Lightning Transformer model` trained and val
 
 # Dataset
 
-The dataset used for training and validation is [`opus_books`](https://huggingface.co/datasets/opus_books).
+The dataset used for training and validation is `en-it` of [opus_books](https://huggingface.co/datasets/opus_books/viewer/en-it/train). 
+
+- **Source Language** - `en`   
+- **Target Language** - `it`
 
 ### Dataset Summary
 
@@ -44,21 +47,18 @@ The dataset used for training and validation is [`opus_books`](https://huggingfa
 # Model Summary 
 
 ```python
-  | Name             | Type               | Params
---------------------------------------------------------
-0 | encoder          | Encoder            | 12.6 M
-1 | decoder          | Decoder            | 18.9 M
-2 | projection_layer | ProjectionLayer    | 11.5 M
-3 | src_embed        | InputEmbeddings    | 8.0 M 
-4 | tgt_embed        | InputEmbeddings    | 11.5 M
-5 | src_pos          | PositionalEncoding | 0     
-6 | tgt_pos          | PositionalEncoding | 0     
-7 | loss_fn          | CrossEntropyLoss   | 0     
---------------------------------------------------------
-62.5 M    Trainable params
+  | Name            | Type             | Params
+-----------------------------------------------------
+0 | net             | Transformer      | 75.1 M
+1 | loss_fn         | CrossEntropyLoss | 0     
+2 | char_error_rate | _CharErrorRate   | 0     
+3 | word_error_rate | _WordErrorRate   | 0     
+4 | bleu_score      | _BLEUScore       | 0     
+-----------------------------------------------------
+75.1 M    Trainable params
 0         Non-trainable params
-62.5 M    Total params
-250.151   Total estimated model params size (MB)
+75.1 M    Total params
+300.532   Total estimated model params size (MB)
 ```
 
 <br>
