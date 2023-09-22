@@ -102,3 +102,47 @@ Estimated Total Size (MB): 2785103.45
 ## Visualise dataset
 
 ![OxfordIIITPet](../../Results/Session%2018/oxford_data.png)
+
+<br>
+
+# Results
+
+1. MP + TR + BCE
+
+![viz_1](../../Results/Session%2018/v1.png)
+
+<br>
+
+![loss_1](../../Results/Session%2018/l1.png)
+
+<br>
+
+2. MP + TR + Dice Loss
+
+![viz_2](../../Results/Session%2018/v2.png)
+
+<br>
+
+![loss_2](../../Results/Session%2018/l2.png)
+
+<br>
+
+3. StrConv + TR + BCE
+
+![viz_3](../../Results/Session%2018/v3.png)
+
+<br>
+
+![loss_3](../../Results/Session%2018/l3.png)
+
+<br>
+
+4. StrConv + Ups + Dice Loss
+
+![viz_4](../../Results/Session%2018/v4.png)
+
+<br>
+
+![loss_4](../../Results/Session%2018/l4.png)
+
+<br>
