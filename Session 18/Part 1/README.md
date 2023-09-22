@@ -107,7 +107,7 @@ Estimated Total Size (MB): 2785103.45
 
 # Results
 
-1. MP + TR + BCE
+## MP + TR + BCE
 
 ![viz_1](../../Results/Session%2018/v1.png)
 
@@ -117,7 +117,7 @@ Estimated Total Size (MB): 2785103.45
 
 <br>
 
-2. MP + TR + Dice Loss
+## MP + TR + Dice Loss
 
 ![viz_2](../../Results/Session%2018/v2.png)
 
@@ -127,7 +127,7 @@ Estimated Total Size (MB): 2785103.45
 
 <br>
 
-3. StrConv + TR + BCE
+## StrConv + TR + BCE
 
 ![viz_3](../../Results/Session%2018/v3.png)
 
@@ -137,7 +137,7 @@ Estimated Total Size (MB): 2785103.45
 
 <br>
 
-4. StrConv + Ups + Dice Loss
+## StrConv + Ups + Dice Loss
 
 ![viz_4](../../Results/Session%2018/v4.png)
 
