@@ -2,6 +2,15 @@
 
 # CLIP Models and Training them
 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
+[![PyTorch 2.0](https://img.shields.io/badge/torch-v2.0-brightgreen)](https://pytorch.org/docs/stable/index.html)
+[![PyTorch-Lightning](https://img.shields.io/badge/pytorch_lightning-v2.0.6-orange)](https://lightning.ai/docs/pytorch/latest/)
+[![Torchvision 0.15](https://img.shields.io/badge/torchvision-v0.15-green)](https://pytorch.org/vision/stable/index.html)
+[![Albumentations](https://img.shields.io/badge/Albumentations-v1.3.1-yellow)](https://albumentations.ai/docs/)
+[![Transformers](https://img.shields.io/badge/Transformers-v4.34.0-lightgreen)](https://huggingface.co/docs/transformers/index)
+
+<br>
+
 # Task
 
 - Make a CLIP or FastSAM application on gradio/spaces using open-source models.
